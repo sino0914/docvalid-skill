@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "rules_version": "0.1.0",
   "released": "2026-11-20",
-  "latest_url": "https://precheck.example.itri.org.tw/latest.json",
-  "download_page": "https://precheck.example.itri.org.tw/download",
+  "latest_url": "https://github.com/sino0914/docvalid-skill/blob/main/SKILL/version.json",
+  "download_page": "https://github.com/sino0914/docvalid-skill/tree/main/SKILL",
   "offline_policy": "stop"
 }
