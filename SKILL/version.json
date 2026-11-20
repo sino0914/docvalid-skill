@@ -1,7 +1,7 @@
 {
   "skill": "doc-precheck-ai",
   "version": "0.1.0",
-  "rules_version": "0.1.0",
+  "rules_version": "2026.11-sample",
   "released": "2026-11-20",
   "latest_url": "https://github.com/sino0914/docvalid-skill/blob/main/SKILL/version.json",
   "download_page": "https://github.com/sino0914/docvalid-skill/tree/main/SKILL",
