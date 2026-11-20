@@ -1,0 +1,9 @@
+{
+  "skill": "doc-precheck-ai",
+  "version": "0.1.0",
+  "rules_version": "2026.11-sample",
+  "released": "2026-11-20",
+  "latest_url": "https://precheck.example.itri.org.tw/latest.json",
+  "download_page": "https://precheck.example.itri.org.tw/download",
+  "offline_policy": "stop"
+}

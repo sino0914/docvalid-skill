@@ -1,0 +1,136 @@
+{
+  "rules_version": "2026.11-sample",
+  "status": "範例規則：內容為虛構，待審查單位提供並核准正式規則後整份替換",
+  "visibility": "本檔只放可公開的規則。不可公開的防詐規則只放在 PRO 複審，不得放進本檔。",
+  "submission_name": "送件包（範例）",
+  "documents": [
+    {"code": "APP", "name": "申請書", "required": true},
+    {"code": "REG", "name": "公司登記證明", "required": true},
+    {"code": "IDC", "name": "負責人身分證明影本", "required": true},
+    {"code": "DEC", "name": "切結書", "required": true},
+    {"code": "FIN", "name": "最近一期財務報表", "required": false}
+  ],
+  "levels": {
+    "error": "必須修正：不修正一定會被退件",
+    "warning": "建議修正：不一定會被退件，但容易被要求補件",
+    "manual": "需要人工確認：AI 或程式無法判斷，請承辦人自行確認"
+  },
+  "rules": [
+    {
+      "id": "F001", "code": "DOC_REQUIRED_MISSING", "kind": "format", "level": "error",
+      "title": "必附文件齊全",
+      "description": "documents 清單中 required 為 true 的文件，每一種都要有一個檔案（用檔名中的文件代碼判斷）。",
+      "check": "required_documents",
+      "fix": "補上缺少的文件，檔名照 F002 的格式命名。"
+    },
+    {
+      "id": "F002", "code": "FILENAME_PATTERN", "kind": "format", "level": "error",
+      "title": "檔名格式正確",
+      "description": "檔名必須是「統一編號8碼_文件代碼_文件日期8碼.pdf」，文件代碼要是 documents 清單裡的代碼。",
+      "check": "filename_pattern",
+      "params": {"pattern": "^(?P<ubn>\\d{8})_(?P<doc>[A-Z]{3})_(?P<date>\\d{8})\\.pdf$", "example": "04595257_APP_20261120.pdf"},
+      "fix": "照範例改檔名，例如 04595257_APP_20261120.pdf。"
+    },
+    {
+      "id": "F003", "code": "FILE_TYPE_NOT_ALLOWED", "kind": "format", "level": "error",
+      "title": "檔案格式為 PDF",
+      "description": "只接受 .pdf 檔，而且檔案內容真的是 PDF（檔案開頭是 %PDF-）。",
+      "check": "file_type",
+      "params": {"allowed": [".pdf"]},
+      "fix": "轉存成 PDF 再送。"
+    },
+    {
+      "id": "F004", "code": "FILE_TOO_LARGE", "kind": "format", "level": "error",
+      "title": "單一檔案不超過 10 MB",
+      "description": "每個檔案的大小不可超過 params.max_mb。",
+      "check": "max_size",
+      "params": {"max_mb": 10},
+      "fix": "降低掃描解析度或壓縮 PDF 後再送。"
+    },
+    {
+      "id": "F005", "code": "PDF_ENCRYPTED", "kind": "format", "level": "error",
+      "title": "PDF 沒有設定密碼或加密",
+      "description": "PDF 不可設定開啟密碼或加密保護，審查端才能開啟。",
+      "check": "pdf_not_encrypted",
+      "fix": "移除 PDF 的密碼保護後重新存檔。"
+    },
+    {
+      "id": "F006", "code": "PDF_NO_TEXT", "kind": "format", "level": "warning",
+      "title": "PDF 可選取文字",
+      "description": "PDF 最好是可以選取文字的檔案；整份只有掃描圖片時，審查端比對會比較慢。",
+      "check": "pdf_has_text",
+      "fix": "盡量用原始檔直接轉 PDF；只能掃描時，請開啟掃描軟體的文字辨識（OCR）。"
+    },
+    {
+      "id": "F007", "code": "UBN_INVALID", "kind": "format", "level": "error",
+      "title": "統一編號檢查碼正確",
+      "description": "檔名中的統一編號要通過財政部檢查碼邏輯：8 碼依序乘 1,2,1,2,1,2,4,1，每個乘積的十位數和個位數相加後加總，總和可被 5 整除；第 7 碼是 7 時，總和或總和加 1 可被 5 整除即可。",
+      "check": "ubn_checksum",
+      "fix": "確認統一編號有沒有打錯。"
+    },
+    {
+      "id": "F008", "code": "UBN_MISMATCH", "kind": "format", "level": "error",
+      "title": "所有檔案的統一編號一致",
+      "description": "同一個送件包裡，每個檔名的統一編號都要相同。",
+      "check": "same_ubn",
+      "fix": "確認是不是混到其他公司的文件，或檔名打錯。"
+    },
+    {
+      "id": "F009", "code": "DOC_DATE_INVALID", "kind": "format", "level": "error",
+      "title": "文件日期是合理的日期",
+      "description": "檔名中的日期必須是存在的日期，而且不能晚於今天。",
+      "check": "date_valid",
+      "fix": "檔名日期改成文件實際的日期（西元年月日，例如 20261120）。"
+    },
+    {
+      "id": "F010", "code": "DOC_DATE_TOO_OLD", "kind": "format", "level": "warning",
+      "title": "文件在 90 天內",
+      "description": "文件日期距離今天不超過 params.days 天。",
+      "check": "date_within_days",
+      "params": {"days": 90},
+      "fix": "改附最近 90 天內開立或簽署的文件。"
+    },
+    {
+      "id": "C001", "code": "COMPANY_NAME_MISMATCH", "kind": "content", "level": "error",
+      "title": "各文件的公司名稱一致",
+      "description": "申請書、公司登記證明、切結書上的公司名稱必須完全相同（含「股份有限公司」等字樣）。",
+      "how": "逐份讀出公司名稱，列出每份的寫法再比對；有任何一字不同就算不一致。",
+      "fix": "以公司登記證明上的名稱為準，修改其他文件。"
+    },
+    {
+      "id": "C002", "code": "REPRESENTATIVE_MISMATCH", "kind": "content", "level": "error",
+      "title": "負責人姓名一致",
+      "description": "申請書上的負責人姓名，要和公司登記證明、負責人身分證明影本上的姓名相同。",
+      "how": "讀出三份文件上的負責人姓名再比對。",
+      "fix": "以公司登記證明上的負責人為準；負責人有變更時，先附變更後的登記證明。"
+    },
+    {
+      "id": "C003", "code": "APPLICATION_FIELD_EMPTY", "kind": "content", "level": "error",
+      "title": "申請書必填欄位都有填",
+      "description": "申請書上的公司名稱、統一編號、負責人、聯絡人、聯絡電話、地址都不可空白。",
+      "how": "逐欄確認有沒有內容，空白、只寫「無」或「同上」都算沒填。",
+      "fix": "補齊空白欄位。"
+    },
+    {
+      "id": "C004", "code": "DECLARATION_NOT_SIGNED", "kind": "content", "level": "error",
+      "title": "切結書有簽名或用印",
+      "description": "切結書要有負責人簽名或公司大小章。",
+      "how": "確認簽名欄或用印處有簽名或印章；只有打字的姓名不算。",
+      "fix": "由負責人簽名或蓋公司大小章後重新掃描。"
+    },
+    {
+      "id": "C005", "code": "UBN_CONTENT_MISMATCH", "kind": "content", "level": "error",
+      "title": "文件上的統一編號和檔名一致",
+      "description": "申請書、公司登記證明上印的統一編號，要和檔名中的統一編號相同。",
+      "how": "讀出文件上的統一編號，和檔名比對。",
+      "fix": "確認檔名或文件是否用錯公司的資料。"
+    },
+    {
+      "id": "C006", "code": "DOCUMENT_UNREADABLE", "kind": "content", "level": "warning",
+      "title": "文件清楚可讀",
+      "description": "文件不可模糊、歪斜到看不清楚，或缺頁、被裁切。",
+      "how": "看不清楚的頁面要列出頁碼。",
+      "fix": "重新掃描清楚的版本。"
+    }
+  ]
+}
