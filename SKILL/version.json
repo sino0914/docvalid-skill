@@ -1,8 +1,8 @@
 {
   "skill": "doc-precheck-ai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "rules_version": "2026.11-sample",
-  "released": "2026-11-23",
+  "released": "2026-11-24",
   "skill_repo": {
     "owner": "sino0914",
     "repo": "docvalid-skill",

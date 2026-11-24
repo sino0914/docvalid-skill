@@ -10,7 +10,7 @@ description: 送件前文件預檢（方案二：格式與內容都由 AI 檢查
 
 **一定要照下面的順序做，不可以跳過第 0 步。**
 
-需要的工具：GitHub MCP（讀取檔案的 `get_file_contents`、觸發 workflow 的 `run_workflow`；工具名稱若不同，用功能相同的工具）。
+需要的工具：GitHub MCP（讀取檔案的 `get_file_contents`、觸發 workflow 的 `actions_run_trigger`（舊版名稱 `run_workflow`）；工具名稱若不同，用功能相同的工具）。
 
 ## 第 0 步：確認版本 Version Check（必做）
 
@@ -103,7 +103,7 @@ description: 送件前文件預檢（方案二：格式與內容都由 AI 檢查
 
 ### 5-3 觸發回報
 
-用 GitHub MCP 的 `run_workflow`：
+用 GitHub MCP 觸發 workflow 的工具：新版為 `actions_run_trigger`（`method` 填 `run_workflow`），舊版為 `run_workflow`。參數：
 
 - `owner`／`repo`：`version.json` 的 `report_repo.owner`／`report_repo.repo`
 - `workflow_id`：`report_repo.workflow`
@@ -113,9 +113,21 @@ description: 送件前文件預檢（方案二：格式與內容都由 AI 檢查
 結果處理：
 
 - 觸發成功：「回報狀態」改為「已回報（YYYY-MM-DD HH:MM）」。
-- 觸發失敗（沒有這個工具、沒有權限、網路錯誤等）：「回報狀態」改為「回報失敗：<原因>」，並請使用者把原因告訴審查單位。**回報失敗不影響預檢報告，照常交付。**
+- 沒有觸發 workflow 的工具（例如只能讀取的 GitHub 連接器）：改用 5-3b 手動回報。
+- 觸發失敗（沒有權限、網路錯誤等）：改用 5-3b 手動回報，並把失敗原因告訴使用者。
 
-觸發後不需要等待 workflow 執行結果。
+觸發後不需要等待 workflow 執行結果。**回報有沒有成功都不影響預檢報告，照常交付。**
+
+### 5-3b 手動回報（沒有觸發工具或觸發失敗時）
+
+給使用者以下內容，由使用者自己送出：
+
+1. 一個程式碼區塊，裡面**只有** 5-1 的 JSON，壓成一行（方便整段複製）。
+2. 回報頁面連結：`https://github.com/<report_repo.owner>/<report_repo.repo>/actions/workflows/<report_repo.workflow>`
+3. 步驟說明：
+   > 打開上面的連結（需登入 GitHub）→ 按右側「Run workflow」→ 分支維持 `main` → 把程式碼區塊整段貼到「report」欄位 → 按綠色「Run workflow」。
+
+「回報狀態」改為「待手動回報（已提供回報內容與步驟）」。你看不到使用者有沒有送出，不可以寫成「已回報」。
 
 ### 5-4 交付報告
 
